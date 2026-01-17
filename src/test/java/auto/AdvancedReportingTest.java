@@ -18,7 +18,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Epic("Тесты для the-internet.herokuapp.com")
 @Feature("Работа с JavaScript-алертами")
@@ -88,25 +87,6 @@ public class AdvancedReportingTest {
         }
     }
 
-//    @Test
-//    @Story("Проверка JS Confirm")
-//    @Description("Тест взаимодействия с JS Confirm при подтверждении")
-//    @Severity(SeverityLevel.NORMAL)
-//    void testJavaScriptConfirm() {
-//        try {
-//            navigateToAlertsPage();
-//            String confirmMessage = foJsConfirm();
-//            verifyConfirmResultText();
-//            captureSuccessScreenshot();
-//
-//            logExtent(Status.PASS, "Тест JS Confirm успешно завершен с сообщением: " + confirmMessage);
-//
-//        } catch (Exception e) {
-//            foTestFailure(e);
-//            throw e;
-//        }
-//    }
-
     @Step("Открыть страницу с алертами")
     private void navigateToAlertsPage() {
         page.navigate("https://the-internet.herokuapp.com/javascript_alerts",
@@ -153,36 +133,6 @@ public class AdvancedReportingTest {
         }
     }
 
-//    @Step("Обработать JS Confirm")
-//    private String foJsConfirm() {
-//        CompletableFuture<String> confirmMessageFuture = new CompletableFuture<>();
-//
-//        // Устанавливаем обработчик диалога
-//        page.onDialog(dialog -> {
-//            String message = dialog.message();
-//            confirmMessageFuture.complete(message);
-//            dialog.accept(); // Подтверждаем диалог
-//            logExtent(Status.INFO, "Confirm принят: " + message);
-//        });
-//
-//        // Кликаем по кнопке, которая вызывает confirm
-//        page.click("button[onclick='jsConfirm()']");
-//        logExtent(Status.INFO, "Клик по кнопке JS Confirm выполнен");
-//
-//        // Ожидаем результат с таймаутом
-//        try {
-//            String confirmMessage = confirmMessageFuture.get(5, TimeUnit.SECONDS);
-//            assertEquals("I am a JS Confirm", confirmMessage,
-//                    "Сообщение confirm должно быть 'I am a JS Confirm'");
-//
-//            logExtent(Status.INFO, "Получено сообщение confirm: " + confirmMessage);
-//            return confirmMessage;
-//        } catch (Exception e) {
-//            logExtent(Status.FAIL, "Ошибка при ожидании confirm: " + e.getMessage());
-//            throw new RuntimeException("Confirm не появился в течение 5 секунд", e);
-//        }
-//    }
-
     @Step("Проверить текст результата")
     private void verifyResultText() {
         // Ждем появления результата
@@ -199,23 +149,6 @@ public class AdvancedReportingTest {
 
         logExtent(Status.INFO, "Результирующий текст проверен: " + resultText);
     }
-
-//    @Step("Проверить текст результата для Confirm")
-//    private void verifyConfirmResultText() {
-//        // Ждем появления результата
-//        page.waitForSelector("#result", new Page.WaitForSelectorOptions().setTimeout(5000));
-//
-//        // Проверяем, что текст содержит нужное сообщение
-//        page.waitForCondition(() ->
-//                        page.locator("#result").textContent().contains("Ok"),
-//                new Page.WaitForConditionOptions().setTimeout(5000));
-//
-//        String resultText = page.locator("#result").textContent();
-//        assertEquals("You clicked: Ok", resultText,
-//                "Текст результата должен быть 'You clicked: Ok'");
-//
-//        logExtent(Status.INFO, "Результирующий текст проверен: " + resultText);
-//    }
 
     private void captureSuccessScreenshot() {
         try {
