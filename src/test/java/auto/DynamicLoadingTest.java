@@ -3,15 +3,11 @@ package auto;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.WaitUntilState;
-import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
-
-import static java.rmi.server.LogStream.log;
 
 public class DynamicLoadingTest {
     Playwright playwright;
