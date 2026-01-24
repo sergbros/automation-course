@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -25,47 +26,25 @@ public class AdvancedReportingTest {
     private static ExtentReports extent;
     private Browser browser;
     private Playwright playwright;
+    private BrowserContext context;
     private Page page;
     private ExtentTest test;
 
     @BeforeAll
     static void setupExtent() {
-        // Создаем директорию для результатов
-        Path resultsDir = Paths.get("allure-results");
-        if (!resultsDir.toFile().exists()) {
-            resultsDir.toFile().mkdirs();
-        }
-
         ExtentSparkReporter reporter = new ExtentSparkReporter("allure-results/extent-report.html");
         reporter.config().setDocumentTitle("Playwright Extent Report");
-        reporter.config().setReportName("JavaScript Alerts Test Report");
-        reporter.config().setEncoding("utf-8");
-
         extent = new ExtentReports();
         extent.attachReporter(reporter);
-        extent.setSystemInfo("OS", System.getProperty("os.name"));
-        extent.setSystemInfo("Java Version", System.getProperty("java.version"));
     }
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
         playwright = Playwright.create();
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
-                .setHeadless(true));
-
-        BrowserContext context = browser.newContext(new Browser.NewContextOptions()
-                .setViewportSize(1920, 1080));
+        //Код...
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        context = browser.newContext();
         page = context.newPage();
-
-        // Создаем тест в ExtentReports
-        String testName = testInfo.getDisplayName();
-        if (testName == null || testName.isEmpty()) {
-            testName = testInfo.getTestMethod().get().getName();
-        }
-        test = extent.createTest(testName);
-
-        // Логируем начало теста
-        test.log(Status.INFO, "Начинаем тест: " + testName);
     }
 
     @Test
@@ -91,93 +70,73 @@ public class AdvancedReportingTest {
     private void navigateToAlertsPage() {
         page.navigate("https://the-internet.herokuapp.com/javascript_alerts",
                 new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
-
-        // Ждем загрузки заголовка
-        page.waitForSelector("h3", new Page.WaitForSelectorOptions().setTimeout(10000));
-
-        String actualTitle = page.locator("h3").textContent();
-        assertEquals("JavaScript Alerts", actualTitle,
+        assertEquals("JavaScript Alerts", page.locator("h3").textContent(),
                 "Страница должна содержать заголовок 'JavaScript Alerts'");
-
         logExtent(Status.INFO, "Страница с алертами загружена");
-        logExtent(Status.INFO, "Заголовок страницы: " + actualTitle);
     }
 
     @Step("Обработать JS Alert")
     private String foJsAlert() {
         CompletableFuture<String> alertMessageFuture = new CompletableFuture<>();
 
-        // Устанавливаем обработчик диалога
+        // Тут устанавливаем обработчик диалога
         page.onDialog(dialog -> {
             String message = dialog.message();
             alertMessageFuture.complete(message);
             dialog.accept();
-            logExtent(Status.INFO, "Alert принят: " + message);
         });
 
-        // Кликаем по кнопке, которая вызывает alert
+        // Тут кликаем по кнопке, которая вызывает alert
         page.click("button[onclick='jsAlert()']");
         logExtent(Status.INFO, "Клик по кнопке JS Alert выполнен");
 
-        // Ожидаем результат с таймаутом
+        // Тут ожидаем результат с таймаутом
+        //Код...
         try {
             String alertMessage = alertMessageFuture.get(5, TimeUnit.SECONDS);
-            assertEquals("I am a JS Alert", alertMessage,
-                    "Сообщение alert должно быть 'I am a JS Alert'");
-
-            logExtent(Status.INFO, "Получено сообщение alert: " + alertMessage);
+            logExtent(Status.INFO, "Получено сообщение алерта: " + alertMessage);
             return alertMessage;
-        } catch (Exception e) {
-            logExtent(Status.FAIL, "Ошибка при ожидании alert: " + e.getMessage());
+        } catch (TimeoutException e) {
+            logExtent(Status.WARNING, "Таймаут ожидания алерта");
             throw new RuntimeException("Alert не появился в течение 5 секунд", e);
+        } catch (Exception e) {
+            logExtent(Status.FAIL, "Ошибка при обработке алерта: " + e.getMessage());
+            throw new RuntimeException("Ошибка обработки алерта", e);
         }
     }
 
     @Step("Проверить текст результата")
     private void verifyResultText() {
-        // Ждем появления результата
-        page.waitForSelector("#result", new Page.WaitForSelectorOptions().setTimeout(5000));
-
-        // Проверяем, что текст содержит нужное сообщение
         page.waitForCondition(() ->
-                        page.locator("#result").textContent().contains("successfully"),
-                new Page.WaitForConditionOptions().setTimeout(5000));
+                page.locator("#result").textContent().contains("successfully"));
 
         String resultText = page.locator("#result").textContent();
         assertEquals("You successfully clicked an alert", resultText,
                 "Текст результата должен соответствовать ожидаемому");
-
         logExtent(Status.INFO, "Результирующий текст проверен: " + resultText);
     }
 
     private void captureSuccessScreenshot() {
+        String screenshotName = "success-screenshot.png";
+        Path screenshotPath = Paths.get("allure-results", screenshotName);
+        //Код...
         try {
             // Делаем скриншот
             byte[] screenshot = page.screenshot(new Page.ScreenshotOptions()
-                    .setFullPage(false));
-
-            String screenshotName = "success-screenshot.png";
-            Path screenshotPath = Paths.get("allure-results", screenshotName);
-
-            // Сохраняем скриншот в файл для ExtentReports
-            page.screenshot(new Page.ScreenshotOptions()
                     .setPath(screenshotPath)
-                    .setFullPage(false));
+                    .setFullPage(true));
 
             // Для Allure
             try (InputStream screenshotStream = new ByteArrayInputStream(screenshot)) {
                 Allure.addAttachment("Успешное выполнение", "image/png", screenshotStream, ".png");
-            }
+            } //Код...
 
             // Для ExtentReports
-            String base64Screenshot = java.util.Base64.getEncoder().encodeToString(screenshot);
             test.pass("Скриншот успешного выполнения",
-                    MediaEntityBuilder.createScreenCaptureFromBase64String(base64Screenshot).build());
-
-            logExtent(Status.INFO, "Скриншот успешного выполнения сохранен");
-
+                    MediaEntityBuilder.createScreenCaptureFromPath("success-screenshot.png").build());
+            //Код...
         } catch (Exception e) {
-            logExtent(Status.WARNING, "Не удалось создать скриншот: " + e.getMessage());
+            logExtent(Status.WARNING, "Не удалось сделать скриншот: " + e.getMessage());
         }
     }
 
@@ -187,78 +146,47 @@ public class AdvancedReportingTest {
 
     private void foTestFailure(Exception e) {
         // Скриншот для Allure при ошибке
+        byte[] failureScreenshot = page.screenshot();
+
+        try (InputStream failureStream = new ByteArrayInputStream(failureScreenshot)) {
+            Allure.addAttachment("Ошибка теста", "image/png", failureStream, ".png");
+        } catch (Exception ex) {
+            logExtent(Status.WARNING, "Не удалось добавить скриншот ошибки в Allure: " + ex.getMessage());
+        }
+
+        // Логирование ошибки в ExtentReports
+        String screenshotName = "error-screenshot.png";
+        Path screenshotPath = Paths.get("allure-results", screenshotName);
+        //Код...
         try {
-            byte[] failureScreenshot = page.screenshot(new Page.ScreenshotOptions()
-                    .setFullPage(true));
-
-            try (InputStream failureStream = new ByteArrayInputStream(failureScreenshot)) {
-                Allure.addAttachment("Ошибка теста", "image/png", failureStream, ".png");
-            }
-
-            // Логирование ошибки в ExtentReports
-            String screenshotName = "error-screenshot.png";
-            Path screenshotPath = Paths.get("allure-results", screenshotName);
-
-            // Сохраняем скриншот в файл
-            page.screenshot(new Page.ScreenshotOptions()
+            byte[] screenshot = page.screenshot(new Page.ScreenshotOptions()
                     .setPath(screenshotPath)
                     .setFullPage(true));
 
-            // Добавляем скриншот в ExtentReports
-            String base64Screenshot = java.util.Base64.getEncoder().encodeToString(failureScreenshot);
-            test.fail("Тест завершился с ошибкой: " + e.getMessage(),
-                    MediaEntityBuilder.createScreenCaptureFromBase64String(base64Screenshot).build());
+            test.fail("Скриншот при ошибке: " + e.getMessage(),
+                    MediaEntityBuilder.createScreenCaptureFromPath(
+                            screenshotName).build());
 
-            // Логируем детали ошибки
-            test.log(Status.FAIL, "Тип ошибки: " + e.getClass().getName());
-            test.log(Status.FAIL, "Сообщение: " + e.getMessage());
-
-            // Добавляем трассировку стека
-            StringBuilder stackTrace = new StringBuilder();
-            for (StackTraceElement element : e.getStackTrace()) {
-                stackTrace.append(element.toString()).append("\n");
-                if (stackTrace.length() > 500) { // Ограничиваем длину
-                    stackTrace.append("...\n");
-                    break;
-                }
-            }
-            test.log(Status.INFO, "Трассировка стека:\n" + stackTrace.toString());
-
-        } catch (Exception ex) {
-            logExtent(Status.WARNING, "Не удалось добавить скриншот ошибки в Allure: " + ex.getMessage());
-            test.fail("Тест завершился с ошибкой: " + e.getMessage());
+        } catch (Exception screenshotEx) {
+            logExtent(Status.WARNING, "Не удалось сохранить скриншот для ExtentReports: " + screenshotEx.getMessage());
         }
+
+        // Добавляем стектрейс в ExtentReports
+        test.fail(e);
     }
 
     @AfterEach
     void tearDownEach() {
-        try {
-            // Логируем завершение теста
-            String status = (test.getStatus() != null) ? test.getStatus().toString() : "UNKNOWN";
-            logExtent(Status.INFO, "Тест завершен со статусом: " + status);
-
-            // Закрываем браузер и playwright
-            if (browser != null) {
-                browser.close();
-            }
-            if (playwright != null) {
-                playwright.close();
-            }
-        } catch (Exception e) {
-            System.err.println("Ошибка при завершении теста: " + e.getMessage());
-        }
+        //Код...
+        page.close();
+        context.close();
+        browser.close();
+        playwright.close();
     }
 
     @AfterAll
     static void tearDown() {
-        // Закрываем ExtentReports
-        if (extent != null) {
-            extent.flush();
-            System.out.println("Extent отчет сохранен в: allure-results/extent-report.html");
-        }
-
-        System.out.println("\n=== Для просмотра отчетов выполните: ===");
-        System.out.println("1. Allure отчет: allure serve allure-results");
-        System.out.println("2. Extent отчет: откройте файл allure-results/extent-report.html в браузере");
+        //Код...
+        extent.flush();
     }
 }
