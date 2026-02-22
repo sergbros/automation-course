@@ -20,6 +20,9 @@ public class BaseTest {
 
     @AfterEach
     void tearDown() {
+        page.close();
+        context.close();
+        browser.close();
         playwright.close();
     }
 }
