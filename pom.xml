@@ -101,6 +101,11 @@
             <version>2.20.1</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.aeonbits.owner</groupId>
+            <artifactId>owner</artifactId>
+            <version>1.0.12</version>
+        </dependency>
     </dependencies>
 
     <build>
