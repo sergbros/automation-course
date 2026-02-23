@@ -7,16 +7,23 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DynamicControlsTest {
-    @Test
-    void testDynamicCheckbox() {
-        TestContext context = new TestContext();
-        DynamicControlsPage controlsPage = new DynamicControlsPage(context.getPage());
+    private TestContext context;
+    private DynamicControlsPage controlsPage;
 
-        // Навигация на страницу
-
+    @BeforeEach
+    public void setup() {
+        context = new TestContext();
         controlsPage = new DynamicControlsPage(context.getPage());
         context.getPage().navigate("https://the-internet.herokuapp.com/dynamic_controls");
+    }
 
+    @AfterEach
+    public void teardown() {
+        context.getPage().close();
+    }
+
+    @Test
+    void testDynamicCheckbox() {
         // Ожидаем загрузки страницы
         controlsPage.getPage().waitForSelector("#checkbox", new Page.WaitForSelectorOptions()
                 .setTimeout(5000));
