@@ -6,6 +6,7 @@ import org.aeonbits.owner.Config;
 public interface EnvironmentConfig extends Config {
 
     @Key("baseUrl")
+    @DefaultValue("https://the-internet.herokuapp.com")
     String baseUrl();
 
     @Key("browser")
