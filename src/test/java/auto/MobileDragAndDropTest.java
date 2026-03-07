@@ -27,7 +27,7 @@ public class MobileDragAndDropTest {
                 .setIsMobile(true)
                 .setHasTouch(true);
 
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
         context = browser.newContext(deviceOptions);
         page = context.newPage();
     }

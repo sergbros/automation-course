@@ -29,7 +29,7 @@ public class StatusCodeApiUiTest {
         // Настройка браузера
         browser = playwright.chromium().launch(
                 new BrowserType.LaunchOptions()
-                        .setHeadless(false)
+                        .setHeadless(true)
                         //.setSlowMo(500)
         );
 

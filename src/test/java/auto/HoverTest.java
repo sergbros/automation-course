@@ -15,7 +15,7 @@ public class HoverTest {
     static void setupClass() {
         playwright = Playwright.create();
         browser = playwright.chromium().launch(new BrowserType.LaunchOptions()
-                .setHeadless(false) // Для визуального наблюдения за тестом
+                .setHeadless(true) // Для визуального наблюдения за тестом
                 .setSlowMo(500));    // Замедление для наглядности
     }
 
