@@ -31,11 +31,11 @@ jobs:
           key: playwright-${{ runner.os }}
 
       # Шаг 5: Установка Java 17 (Temurin distribution - популярный дистрибутив OpenJDK)
-      - name: Set up Java 17
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       # Шаг 6: Разрешение зависимостей Maven без запуска тестов
       - name: Resolve dependencies
