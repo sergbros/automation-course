@@ -16,7 +16,7 @@
         <allure.version>2.24.0</allure.version>
         <allure-maven.version>2.12.0</allure-maven.version>
         <extentreports.version>5.1.1</extentreports.version>
-        <assertj.version>3.27.3</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
         <aspectjweaver.version>1.9.22</aspectjweaver.version>
         <playwright.version>1.50.0</playwright.version>
         <jackson-databind.version>2.17.0</jackson-databind.version>
@@ -29,6 +29,17 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.10</version>  <!-- актуальную версию смотрите в mvnrepository -->
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.30</version> <!-- Убедитесь, что версия 1.18.30 или выше -->
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.aeonbits.owner</groupId>
             <artifactId>owner</artifactId>
@@ -105,6 +116,12 @@
             <groupId>org.aeonbits.owner</groupId>
             <artifactId>owner</artifactId>
             <version>1.0.12</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>RELEASE</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

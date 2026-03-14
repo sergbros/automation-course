@@ -42,7 +42,7 @@ public class AdvancedReportingTest {
     void setUp(TestInfo testInfo) {
         playwright = Playwright.create();
         //Код...
-        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+        browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
         context = browser.newContext();
         page = context.newPage();
     }

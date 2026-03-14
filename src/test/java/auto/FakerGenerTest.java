@@ -8,7 +8,7 @@ public class FakerGenerTest {
     @Test
     void mainTest() {
         try (Playwright playwright = Playwright.create()) {
-            Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+            Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(true));
 
             //Ваш код
             BrowserContext context = browser.newContext();
