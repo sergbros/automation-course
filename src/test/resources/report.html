@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Test Report</title>
+    <style>
+        .passed { color: green; }
+        .failed { color: red; }
+    </style>
+</head>
+<body>
+<h1>Test Results</h1>
+<table border="1">
+    <tr>
+        <th>Test</th>
+        <th>Status</th>
+        <th>Duration (ms)</th>
+        <th>Error</th>
+        <th>Screenshot</th>
+    </tr>
+    <tr th:each="result : ${results}">
+        <td th:text="${result.name}"></td>
+        <td th:class="${result.status == 'Passed' ? 'passed' : 'failed'}"
+            th:text="${result.status}"></td>
+        <td th:text="${result.duration}"></td>
+        <td th:text="${result.error} ?: '-'"></td>
+        <td>
+            <a th:if="${result.screenshot}"
+               th:href="${result.screenshot}"
+               th:text="View"></a>
+            <span th:unless="${result.screenshot}">-</span>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
